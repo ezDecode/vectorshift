@@ -1,15 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 :root {
-  --bg: #0c0d12;
-  --surface: #13151e;
-  --node-bg: #181b26;
-  --border: #252836;
-  --text: #dde1f0;
-  --muted: #5a607a;
-  --handle-bg: #3a3f55;
+  --bg: #1a1f2e;
+  --surface: #252b3d;
+  --node-bg: #2d354a;
+  --border: #3d4559;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --handle-bg: #64748b;
+
   --c-input: #4ade80;
   --c-output: #f87171;
   --c-llm: #a78bfa;
@@ -19,258 +24,504 @@
   --c-note: #94a3b8;
   --c-prompt: #34d399;
   --c-merge: #f472b6;
+
+  --emboss-light: rgba(255, 255, 255, 0.07);
+  --emboss-dark: rgba(0, 0, 0, 0.25);
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
   color: var(--text);
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Base Node - Soft Embossed Design */
 .base-node {
-  background: var(--node-bg);
-  border: 1px solid var(--border);
+  background: linear-gradient(145deg, #323a52, #2a3245);
   border-radius: 10px;
   min-width: 200px;
-  font-size: 13px;
+  font-size: 12px;
+  position: relative;
+
+  box-shadow:
+    inset 0 1px 1px var(--emboss-light),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.17),
+    0 2px 4px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.13);
+
+  transition: box-shadow 0.15s ease;
+}
+
+.base-node:hover {
+  box-shadow:
+    inset 0 1px 1px var(--emboss-light),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.17),
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Selected node */
+.react-flow__node.selected .base-node {
+  box-shadow:
+    inset 0 1px 1px var(--emboss-light),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.17),
+    0 0 0 2px var(--c-llm);
 }
 
 .node-header {
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border);
-  font-weight: 600;
-  font-size: 11px;
+  padding: 10px 12px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.04), transparent);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.17);
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  font-weight: 500;
+  font-size: 10px;
   letter-spacing: 0.6px;
   text-transform: uppercase;
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--text);
 }
 
-.node-header .dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
+.node-delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 3px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+}
+
+.node-delete-btn:hover {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+  opacity: 1;
 }
 
 .node-body {
-  padding: 10px 12px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .node-field {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .node-field label {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
   font-weight: 500;
 }
 
 .node-field input,
 .node-field select,
 .node-field textarea {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
   color: var(--text);
-  padding: 5px 8px;
+  padding: 6px 8px;
   font-size: 12px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   outline: none;
   width: 100%;
-  transition: border-color 0.15s;
+  transition: all 0.15s ease;
 }
 
 .node-field input:focus,
 .node-field select:focus,
-.node-field textarea:focus { border-color: var(--muted); }
-
-.node-field select option { background: var(--surface); }
-.node-field textarea { resize: none; min-height: 60px; }
-
-.react-flow__handle {
-  background: var(--handle-bg) !important;
-  border: 2px solid var(--border) !important;
-  width: 10px !important;
-  height: 10px !important;
-  border-radius: 50% !important;
-  transition: background 0.15s;
+.node-field textarea:focus {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.35);
 }
-.react-flow__handle:hover { background: var(--text) !important; }
-.react-flow__background { background: var(--bg) !important; }
+
+.node-field textarea {
+  resize: none;
+  min-height: 54px;
+}
+
+/* Handles - visible, color-coded, stable */
+.react-flow__handle {
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50% !important;
+  border: 2.5px solid var(--bg) !important;
+  transition: box-shadow 0.15s ease !important;
+}
+
+.react-flow__handle-left {
+  left: -6px !important;
+}
+
+.react-flow__handle-right {
+  right: -6px !important;
+}
+
+.react-flow__handle:hover {
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.35) !important;
+}
+
+.react-flow__handle.connecting {
+  box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.4) !important;
+}
+
+/* Canvas background - subtle dotted grid */
+.react-flow__background {
+  background: var(--bg) !important;
+}
+
+.react-flow__background pattern circle {
+  r: 0.5;
+}
+
+/* Minimap - soft embossed */
 .react-flow__minimap {
   background: var(--surface) !important;
-  border: 1px solid var(--border) !important;
+  border: 1px solid rgba(255, 255, 255, 0.04) !important;
   border-radius: 8px !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.04),
+    0 2px 4px rgba(0, 0, 0, 0.15);
 }
-.react-flow__controls {
-  background: var(--surface) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 8px !important;
-  box-shadow: none !important;
-}
-.react-flow__controls-button {
-  background: var(--surface) !important;
-  border-bottom: 1px solid var(--border) !important;
-  fill: var(--muted) !important;
-}
-.react-flow__controls-button:hover { background: var(--node-bg) !important; }
-.react-flow__edge-path { stroke: #3a3f55 !important; }
 
-.dock {
+.react-flow__controls-button svg {
+  transform: scale(1.15);
+}
+
+.react-flow__controls-button:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+  fill: var(--text) !important;
+}
+
+/* Edges - thinner, more elegant */
+.react-flow__edge-path {
+  stroke: var(--border) !important;
+  stroke-width: 1.5 !important;
+  transition: all 0.2s ease;
+}
+
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--muted) !important;
+  stroke-width: 2 !important;
+}
+
+.react-flow__edge.animated .react-flow__edge-path {
+  stroke-dasharray: 5 5;
+  animation: dash 1s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+/* 3-Box Centered Bottom Layout */
+.bottom-layout {
   position: fixed;
-  bottom: 24px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 100;
+  pointer-events: none; /* Let clicks pass through empty space */
+}
+
+.dock,
+.dock-submit,
+.dock-controls {
+  position: static;
+  transform: none;
+  pointer-events: auto;
+  
+  background: rgba(30, 36, 48, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-  padding: 8px 14px;
+  padding: 0 8px;
+  height: 52px;
   display: flex;
   align-items: center;
   gap: 4px;
-  z-index: 100;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.dock-controls {
+  padding: 0 6px;
+}
+
+/* Override default ReactFlow controls styling when inside our dock */
+.dock-controls .react-flow__controls {
+  position: static !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 2px;
+}
+
+.dock-controls .react-flow__controls-button {
+  border: none !important;
+  border-radius: 6px;
+  background: transparent !important;
+  fill: var(--muted) !important;
+  transition: all 0.15s ease;
+}
+
+.dock-controls .react-flow__controls-button:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  fill: var(--text) !important;
 }
 
 .dock-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 7px 10px;
-  border-radius: 10px;
-  cursor: grab;
-  transition: background 0.15s;
-  user-select: none;
-  min-width: 52px;
-}
-.dock-item:hover { background: var(--node-bg); }
-.dock-item:active { cursor: grabbing; }
-.dock-item .icon { font-size: 17px; line-height: 1; }
-.dock-item .name { font-size: 9px; color: var(--muted); font-weight: 500; }
-
-.dock-sep {
-  width: 1px;
-  height: 28px;
-  background: var(--border);
-  margin: 0 2px;
-}
-
-.dock-more { position: relative; }
-
-.dock-more-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  padding: 7px 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 9px;
-  font-weight: 500;
-  transition: background 0.15s;
-  min-width: 52px;
-}
-.dock-more-btn:hover { background: var(--node-bg); color: var(--text); }
-.dock-more-btn .icon { font-size: 17px; }
-
-.dock-dropdown {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 140px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-
-.dock-dropdown-item {
-  display: flex;
-  align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 7px 10px;
-  border-radius: 7px;
+  padding: 0 14px;
+  height: 36px;
+  border-radius: 10px;
   cursor: grab;
-  font-size: 12px;
-  transition: background 0.15s;
+  color: var(--muted);
+  transition: background 0.15s ease, color 0.15s ease;
   user-select: none;
 }
-.dock-dropdown-item:hover { background: var(--node-bg); }
 
-.submit-btn {
-  background: transparent;
-  border: 1px solid var(--border);
+.dock-item:hover {
+  background: rgba(255, 255, 255, 0.08);
   color: var(--text);
-  padding: 7px 16px;
-  border-radius: 10px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
+}
+
+.dock-item:active {
+  background: rgba(255, 255, 255, 0.04);
+  cursor: grabbing;
+}
+
+.dock-item .icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.dock-item .name {
+  font-size: 15px;
+  color: inherit; /* inherit from dock-item for hover */
+  font-weight: 500;
   letter-spacing: 0.3px;
 }
-.submit-btn:hover { background: var(--node-bg); border-color: var(--muted); }
 
+
+
+
+/* Submit button - premium solid gradient */
+.submit-btn {
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  height: 36px;
+  padding: 0 20px;
+  color: #fff;
+  cursor: pointer;
+  letter-spacing: 0.4px;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  background: linear-gradient(180deg, #4f87ff, #386bf6);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.submit-btn:hover {
+  background: linear-gradient(180deg, #6094ff, #4779ff);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.submit-btn:active {
+  background: #386bf6;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Modal overlay */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 200;
 }
-.modal-box {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 24px 28px;
-  min-width: 280px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+
+.modal-box,
+.confirm-modal {
+  background: linear-gradient(145deg, #2d354a, #252b3d);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 20px 24px;
+  min-width: 260px;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.2);
 }
-.modal-box h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+
+.modal-box h3,
+.confirm-modal h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  letter-spacing: 0.3px;
+}
+
 .modal-stat {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 8px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 12px;
 }
-.modal-stat:last-of-type { border-bottom: none; }
-.modal-stat .val { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+
+.modal-stat:last-of-type {
+  border-bottom: none;
+}
+
+.modal-stat .val {
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 500;
+}
+
 .modal-close {
-  margin-top: 16px;
+  margin-top: 14px;
   width: 100%;
-  background: var(--node-bg);
-  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text);
   padding: 8px;
-  border-radius: 8px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
-.modal-close:hover { background: var(--border); }
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Confirmation modal */
+.confirm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.confirm-modal {
+  width: 300px;
+}
+
+.confirm-modal h3 {
+  margin: 0 0 10px;
+}
+
+.confirm-modal p {
+  margin: 0 0 20px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.confirm-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-cancel,
+.btn-delete {
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+}
+
+.btn-cancel {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+}
+
+.btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+
+.btn-delete {
+  background: linear-gradient(145deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.btn-delete:hover {
+  background: linear-gradient(145deg, #f87171, #ef4444);
+}
+
+/* Selection box */
+.react-flow__selection {
+  background: rgba(167, 139, 250, 0.08) !important;
+  border: 1px solid rgba(167, 139, 250, 0.3) !important;
+}
+
+/* Connection line */
+.react-flow__connection-line {
+  stroke: var(--c-llm) !important;
+  stroke-width: 1.5 !important;
+}
+
+/* Edge label */
+.react-flow__edge-text {
+  font-size: 10px !important;
+  fill: var(--muted) !important;
+}
+
+/* Node dragging state */
+.react-flow__node.dragging {
+  opacity: 0.9;
+}

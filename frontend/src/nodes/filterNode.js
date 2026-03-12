@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { BaseNode } from './baseNode';
+import { useStore } from '../store';
 
 export const FilterNode = ({ id, data }) => {
   const [condition, setCondition] = useState(data?.condition || '');
+  const updateNodeField = useStore((state) => state.updateNodeField);
 
   return (
     <BaseNode
@@ -16,7 +18,10 @@ export const FilterNode = ({ id, data }) => {
         <label>Condition</label>
         <input
           value={condition}
-          onChange={e => setCondition(e.target.value)}
+          onChange={e => {
+            setCondition(e.target.value);
+            updateNodeField(id, 'condition', e.target.value);
+          }}
           placeholder="e.g. value > 10"
         />
       </div>
