@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { BaseNode } from './baseNode';
+import { useStore } from '../store';
 
 export const MergeNode = ({ id, data }) => {
   const [sep, setSep] = useState(data?.sep || '\\n');
+  const updateNodeField = useStore((state) => state.updateNodeField);
 
   return (
     <BaseNode
@@ -16,7 +18,10 @@ export const MergeNode = ({ id, data }) => {
         <label>Separator</label>
         <input
           value={sep}
-          onChange={e => setSep(e.target.value)}
+          onChange={e => {
+            setSep(e.target.value);
+            updateNodeField(id, 'sep', e.target.value);
+          }}
           placeholder="\n"
         />
       </div>

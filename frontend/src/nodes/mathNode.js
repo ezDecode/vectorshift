@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { BaseNode } from './baseNode';
+import { useStore } from '../store';
 
 export const MathNode = ({ id, data }) => {
   const [op, setOp] = useState(data?.op || '+');
+  const updateNodeField = useStore((state) => state.updateNodeField);
 
   return (
     <BaseNode
@@ -14,7 +16,10 @@ export const MathNode = ({ id, data }) => {
     >
       <div className="node-field">
         <label>Operation</label>
-        <select value={op} onChange={e => setOp(e.target.value)}>
+        <select value={op} onChange={e => {
+          setOp(e.target.value);
+          updateNodeField(id, 'op', e.target.value);
+        }}>
           <option value="+">Add (+)</option>
           <option value="-">Subtract (−)</option>
           <option value="*">Multiply (×)</option>
