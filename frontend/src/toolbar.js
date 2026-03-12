@@ -7,9 +7,6 @@ const mainNodes = [
   { type: 'llm', label: 'LLM', icon: '' },
   { type: 'text', label: 'Text', icon: '' },
   { type: 'prompt', label: 'Prompt', icon: '' },
-];
-
-const moreNodes = [
   { type: 'math', label: 'Math', icon: '' },
   { type: 'filter', label: 'Filter', icon: '' },
   { type: 'note', label: 'Note', icon: '' },
@@ -30,43 +27,10 @@ const DockItem = ({ type, label, icon }) => {
   );
 };
 
-export const PipelineToolbar = ({ onSubmit }) => {
-  const [showMore, setShowMore] = useState(false);
-
+export const PipelineToolbar = () => {
   return (
     <div className="dock">
       {mainNodes.map(n => <DockItem key={n.type} {...n} />)}
-
-      <div className="dock-sep" />
-
-      <div className="dock-more">
-        <button className="dock-more-btn" onClick={() => setShowMore(!showMore)}>
-          <span>More</span>
-        </button>
-        {showMore && (
-          <div className="dock-dropdown">
-            {moreNodes.map(n => {
-              const onDragStart = (e) => {
-                e.dataTransfer.setData('application/reactflow', JSON.stringify({ nodeType: n.type }));
-                e.dataTransfer.effectAllowed = 'move';
-                setShowMore(false);
-              };
-              return (
-                <div key={n.type} className="dock-dropdown-item" draggable onDragStart={onDragStart}>
-                  <span>{n.icon}</span>
-                  <span>{n.label}</span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      <div className="dock-sep" />
-
-      <button className="submit-btn" onClick={onSubmit}>
-        Run
-      </button>
     </div>
   );
 };
