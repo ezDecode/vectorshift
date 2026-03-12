@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Handle, Position } from 'reactflow';
+import { BaseNode } from './baseNode';
+import { useStore } from '../store';
 
 // extract {{varName}} patterns from text
 function getVars(text) {
@@ -19,6 +20,7 @@ export const TextNode = ({ id, data }) => {
   const [text, setText] = useState(data?.text || '{{input}}');
   const textareaRef = useRef(null);
   const vars = getVars(text);
+  const updateNodeField = useStore((state) => state.updateNodeField);
 
   // auto-resize textarea
   useEffect(() => {
@@ -32,45 +34,28 @@ export const TextNode = ({ id, data }) => {
   const nodeWidth = Math.max(200, Math.min(400, 200 + text.length * 1.2));
 
   return (
-    <div
-      className="base-node"
-      style={{ borderTop: '2px solid var(--c-text)', width: nodeWidth, position: 'relative' }}
-    >
-      <div className="node-header">
-        <div className="dot" style={{ background: 'var(--c-text)' }} />
-        <span>Text</span>
-      </div>
-      <div className="node-body">
+    <div style={{ width: nodeWidth }}>
+      <BaseNode
+        id={id}
+        label="Text"
+        color="var(--c-text)"
+        inputs={vars.map(v => ({ id: v, label: v }))}
+        outputs={[{ id: 'output', label: 'output' }]}
+      >
         <div className="node-field">
           <label>Content</label>
           <textarea
             ref={textareaRef}
             value={text}
-            onChange={e => setText(e.target.value)}
+            onChange={e => {
+              setText(e.target.value);
+              updateNodeField(id, 'text', e.target.value);
+            }}
             rows={1}
+            style={{ width: '100%' }}
           />
         </div>
-      </div>
-
-      {/* dynamic variable handles on the left */}
-      {vars.map((v, i) => (
-        <Handle
-          key={v}
-          type="target"
-          position={Position.Left}
-          id={`${id}-${v}`}
-          style={{ top: `${((i + 1) / (vars.length + 1)) * 100}%` }}
-          title={v}
-        />
-      ))}
-
-      {/* output on right */}
-      <Handle
-        type="source"
-        position={Position.Right}
-        id={`${id}-output`}
-        style={{ top: '50%' }}
-      />
+      </BaseNode>
     </div>
   );
 };
