@@ -1,59 +1,13 @@
 import { useState, useRef, useCallback } from 'react';
 import ReactFlow, { Controls, Background, MiniMap, ReactFlowProvider } from 'reactflow';
 import { useStore } from './store';
-import { shallow } from 'zustand/shallow';
-import { InputNode } from './nodes/inputNode';
-import { LLMNode } from './nodes/llmNode';
-import { OutputNode } from './nodes/outputNode';
-import { TextNode } from './nodes/textNode';
-import { MathNode } from './nodes/mathNode';
-import { FilterNode } from './nodes/filterNode';
-import { NoteNode } from './nodes/noteNode';
-import { PromptNode } from './nodes/promptNode';
-import { MergeNode } from './nodes/mergeNode';
+import { useShallow } from 'zustand/react/shallow';
+import { nodeTypes } from './nodes';
 import { PipelineToolbar } from './toolbar';
-import { useSubmit, ResultModal } from './submit';
+import { useSubmit } from './submit';
+import { ConfirmModal } from './ConfirmModal';
 
 import 'reactflow/dist/style.css';
-
-const ConfirmModal = () => {
-  const { confirmConfig, setConfirmConfig } = useStore(
-    (state) => ({ confirmConfig: state.confirmConfig, setConfirmConfig: state.setConfirmConfig }),
-    shallow
-  );
-
-  if (!confirmConfig) return null;
-
-  const handleConfirm = () => {
-    confirmConfig.onConfirm();
-    setConfirmConfig(null);
-  };
-
-  return (
-    <div className="confirm-modal-overlay">
-      <div className="confirm-modal">
-        <h3>{confirmConfig.title}</h3>
-        <p>{confirmConfig.message}</p>
-        <div className="confirm-modal-actions">
-          <button className="btn-cancel" onClick={() => setConfirmConfig(null)}>Cancel</button>
-          <button className="btn-delete" onClick={handleConfirm}>Delete</button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const nodeTypes = {
-  customInput: InputNode,
-  llm: LLMNode,
-  customOutput: OutputNode,
-  text: TextNode,
-  math: MathNode,
-  filter: FilterNode,
-  note: NoteNode,
-  prompt: PromptNode,
-  merge: MergeNode,
-};
 
 const selector = (state) => ({
   nodes: state.nodes,
@@ -71,8 +25,8 @@ export const PipelineUI = () => {
   const wrapperRef = useRef(null);
   const [rfInstance, setRfInstance] = useState(null);
   const { nodes, edges, getNodeID, addNode, onNodesChange, onEdgesChange, onConnect, removeEdge, setConfirmConfig } =
-    useStore(selector, shallow);
-  const { submit, result, loading, close } = useSubmit();
+    useStore(useShallow(selector));
+  const { submit } = useSubmit();
 
   const onDrop = useCallback(
     (e) => {
@@ -146,7 +100,6 @@ export const PipelineUI = () => {
           </div>
         </div>
 
-        <ResultModal result={result} loading={loading} onClose={close} />
         <ConfirmModal />
       </div>
     </ReactFlowProvider>

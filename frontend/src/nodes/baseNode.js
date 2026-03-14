@@ -1,11 +1,12 @@
 import { Handle, Position } from 'reactflow';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 
 export const BaseNode = ({ id, label, color, inputs = [], outputs = [], children }) => {
-  const { removeNode, setConfirmConfig } = useStore((state) => ({
+  const { removeNode, setConfirmConfig } = useStore(useShallow((state) => ({
     removeNode: state.removeNode,
     setConfirmConfig: state.setConfirmConfig
-  }));
+  })));
 
   return (
     <div className="base-node">

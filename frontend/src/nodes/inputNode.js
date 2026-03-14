@@ -1,11 +1,11 @@
-import { useState } from 'react';
 import { BaseNode } from './baseNode';
-import { useStore } from '../store';
+import { useNodeField } from '../store';
 
 export const InputNode = ({ id, data }) => {
-  const [name, setName] = useState(data?.inputName || id.replace('customInput-', 'input_'));
-  const [type, setType] = useState(data?.inputType || 'Text');
-  const updateNodeField = useStore((state) => state.updateNodeField);
+  const updateNodeField = useNodeField();
+
+  const name = data?.inputName || id.replace('customInput-', 'input_');
+  const type = data?.inputType || 'Text';
 
   return (
     <BaseNode
@@ -16,17 +16,17 @@ export const InputNode = ({ id, data }) => {
     >
       <div className="node-field">
         <label>Name</label>
-        <input value={name} onChange={e => {
-          setName(e.target.value);
-          updateNodeField(id, 'inputName', e.target.value);
-        }} />
+        <input
+          value={name}
+          onChange={e => updateNodeField(id, 'inputName', e.target.value)}
+        />
       </div>
       <div className="node-field">
         <label>Type</label>
-        <select value={type} onChange={e => {
-          setType(e.target.value);
-          updateNodeField(id, 'inputType', e.target.value);
-        }}>
+        <select
+          value={type}
+          onChange={e => updateNodeField(id, 'inputType', e.target.value)}
+        >
           <option value="Text">Text</option>
           <option value="File">File</option>
         </select>

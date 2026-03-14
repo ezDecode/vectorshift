@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { BaseNode } from './baseNode';
-import { useStore } from '../store';
+import { useNodeField } from '../store';
 
-// extract {{varName}} patterns from text
+// Extract {{varName}} patterns from text
 function getVars(text) {
   const matches = [...text.matchAll(/\{\{(\w+)\}\}/g)];
   const seen = new Set();
@@ -17,12 +17,13 @@ function getVars(text) {
 }
 
 export const TextNode = ({ id, data }) => {
-  const [text, setText] = useState(data?.text || '{{input}}');
   const textareaRef = useRef(null);
-  const vars = getVars(text);
-  const updateNodeField = useStore((state) => state.updateNodeField);
+  const updateNodeField = useNodeField();
 
-  // auto-resize textarea
+  const text = data?.text ?? '{{input}}';
+  const vars = getVars(text);
+
+  // Auto-resize textarea to fit content
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
@@ -30,7 +31,7 @@ export const TextNode = ({ id, data }) => {
     el.style.height = el.scrollHeight + 'px';
   }, [text]);
 
-  // node width grows with text length
+  // Node width grows with text length
   const nodeWidth = Math.max(200, Math.min(400, 200 + text.length * 1.2));
 
   return (
@@ -47,10 +48,7 @@ export const TextNode = ({ id, data }) => {
           <textarea
             ref={textareaRef}
             value={text}
-            onChange={e => {
-              setText(e.target.value);
-              updateNodeField(id, 'text', e.target.value);
-            }}
+            onChange={e => updateNodeField(id, 'text', e.target.value)}
             rows={1}
             style={{ width: '100%' }}
           />

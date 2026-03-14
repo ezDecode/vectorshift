@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Any
+from typing import List, Optional
 
 app = FastAPI()
 
-# allow frontend to call us
+# Allow frontend to call us
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -14,19 +14,39 @@ app.add_middleware(
 )
 
 
+class NodeItem(BaseModel):
+    id: str
+    # Allow any extra fields from the frontend
+    class Config:
+        extra = "allow"
+
+
+class EdgeItem(BaseModel):
+    source: str
+    target: str
+    # Allow any extra fields from the frontend
+    class Config:
+        extra = "allow"
+
+
 class Pipeline(BaseModel):
-    nodes: List[Any]
-    edges: List[Any]
+    nodes: List[NodeItem]
+    edges: List[EdgeItem]
 
 
-def check_dag(nodes, edges):
-    # build adjacency list
-    graph = {n['id']: [] for n in nodes}
+def check_dag(nodes: list[NodeItem], edges: list[EdgeItem]) -> bool:
+    """Check if the pipeline forms a valid Directed Acyclic Graph.
+
+    Uses depth-first search with a recursion stack to detect cycles.
+    Returns True if no cycles are found (valid DAG), False otherwise.
+
+    Note: The frontend also blocks cycles in real-time (store.js → onConnect).
+    This serves as a server-side safety net on submit.
+    """
+    graph = {n.id: [] for n in nodes}
     for e in edges:
-        src = e.get('source')
-        tgt = e.get('target')
-        if src in graph:
-            graph[src].append(tgt)
+        if e.source in graph:
+            graph[e.source].append(e.target)
 
     visited = set()
     rec_stack = set()
@@ -57,9 +77,7 @@ def read_root():
 
 @app.post('/pipelines/parse')
 def parse_pipeline(pipeline: Pipeline):
-    nodes = pipeline.nodes
-    edges = pipeline.edges
-    num_nodes = len(nodes)
-    num_edges = len(edges)
-    is_dag = check_dag(nodes, edges)
+    num_nodes = len(pipeline.nodes)
+    num_edges = len(pipeline.edges)
+    is_dag = check_dag(pipeline.nodes, pipeline.edges)
     return {'num_nodes': num_nodes, 'num_edges': num_edges, 'is_dag': is_dag}

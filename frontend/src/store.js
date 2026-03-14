@@ -4,6 +4,7 @@ import {
   applyNodeChanges,
   applyEdgeChanges,
 } from 'reactflow';
+import toast from 'react-hot-toast';
 
 export const useStore = create((set, get) => ({
   nodes: [],
@@ -44,13 +45,66 @@ export const useStore = create((set, get) => ({
     set({ edges: applyEdgeChanges(changes, get().edges) });
   },
 
+  // ──── Real-time cycle prevention ────
+  // Prevents cycles as users connect nodes, for instant UX feedback.
+  // The backend also validates this on submit as a safety net (main.py → check_dag).
   onConnect: (connection) => {
+    // Block self-loops
+    if (connection.source === connection.target) {
+      toast.error('Self-loops are not allowed!', {
+        style: { borderRadius: '10px', background: '#333', color: '#fff' },
+      });
+      return;
+    }
+
+    const edges = get().edges;
+    
+    // 1. Build an adjacency list representing current edges
+    const adjacencyList = {};
+    for (const edge of edges) {
+      if (!adjacencyList[edge.source]) {
+        adjacencyList[edge.source] = [];
+      }
+      adjacencyList[edge.source].push(edge.target);
+    }
+
+    // 2. Perform a Depth-First Search (DFS) to see if a path exists from target to source
+    const hasPath = (start, end) => {
+      const visited = new Set();
+      const stack = [start];
+
+      while (stack.length > 0) {
+        const current = stack.pop();
+        if (current === end) return true;
+        
+        if (!visited.has(current)) {
+          visited.add(current);
+          const neighbors = adjacencyList[current] || [];
+          for (const neighbor of neighbors) {
+            stack.push(neighbor);
+          }
+        }
+      }
+      return false;
+    };
+
+    // 3. If there's a path from target back to source, adding this edge would create a cycle
+    if (hasPath(connection.target, connection.source)) {
+      toast.error('Cycles are not allowed!', {
+        style: {
+          borderRadius: '10px',
+          background: '#333',
+          color: '#fff',
+        },
+      });
+      return;
+    }
+
     const newEdge = {
       ...connection,
       type: 'default',
-      animated: true,
     };
-    set({ edges: addEdge(newEdge, get().edges) });
+    set({ edges: addEdge(newEdge, edges) });
   },
 
   updateNodeField: (nodeId, fieldName, fieldValue) => {
@@ -62,4 +116,13 @@ export const useStore = create((set, get) => ({
       ),
     });
   },
+
+  setEdgesAnimated: (isAnimated) => {
+    set({
+      edges: get().edges.map((e) => ({ ...e, animated: isAnimated })),
+    });
+  },
 }));
+
+// Convenience hook — avoids repeating the selector in every node
+export const useNodeField = () => useStore((s) => s.updateNodeField);

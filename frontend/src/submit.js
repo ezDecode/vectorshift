@@ -1,16 +1,45 @@
-import { useState } from 'react';
 import { useStore } from './store';
+import toast from 'react-hot-toast';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
+const TOAST_STYLE = {
+  borderRadius: '10px',
+  background: '#333',
+  color: '#fff',
+};
+
+const AnalysisResult = ({ data }) => {
+  const color = data.is_dag ? '#4ade80' : '#f87171';
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '150px' }}>
+      <span style={{ fontWeight: 600, fontSize: '14px', marginBottom: '2px' }}>Analysis Complete</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#a1a1aa' }}>
+        <span>Nodes: <strong style={{ color: '#fff', fontWeight: 500 }}>{data.num_nodes}</strong></span>
+        <span>Edges: <strong style={{ color: '#fff', fontWeight: 500 }}>{data.num_edges}</strong></span>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#a1a1aa', marginTop: '2px' }}>
+        <span>Valid DAG:</span>
+        <strong style={{ color, fontWeight: 500 }}>{data.is_dag ? 'Yes' : 'No'}</strong>
+      </div>
+    </div>
+  );
+};
+
 export const useSubmit = () => {
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
   const nodes = useStore((s) => s.nodes);
   const edges = useStore((s) => s.edges);
 
+  const setEdgesAnimated = useStore((s) => s.setEdgesAnimated);
+
   const submit = async () => {
-    setLoading(true);
+    setEdgesAnimated(true);
+    
+    const toastId = toast.loading('Analyzing pipeline...', { style: TOAST_STYLE });
+    
+    // Artificial visual delay for the data flow animation to play
+    await new Promise(res => setTimeout(res, 800));
+
     try {
       const res = await fetch(`${API_URL}/pipelines/parse`, {
         method: 'POST',
@@ -18,65 +47,28 @@ export const useSubmit = () => {
         body: JSON.stringify({ nodes, edges }),
       });
       const data = await res.json();
-      setResult(data);
+      
+      toast.dismiss(toastId);
+
+      if (data.error) {
+        toast.error(data.error, { style: TOAST_STYLE });
+      } else {
+        toast(
+          <AnalysisResult data={data} />,
+          {
+            icon: data.is_dag ? '✅' : '❌',
+            duration: 5000,
+            style: { borderRadius: '8px', background: '#27272a', color: '#fff', padding: '12px 16px', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }
+          }
+        );
+      }
     } catch {
-      setResult({ error: 'Could not connect to backend.' });
+      toast.dismiss(toastId);
+      toast.error('Could not connect to backend.', { style: TOAST_STYLE });
+    } finally {
+      setEdgesAnimated(false);
     }
-    setLoading(false);
   };
 
-  const close = () => setResult(null);
-
-  return { submit, result, loading, close };
-};
-
-const Modal = ({ children, onClose }) => (
-  <div className="modal-overlay" onClick={onClose}>
-    <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-      {children}
-    </div>
-  </div>
-);
-
-const StatRow = ({ label, value, color }) => (
-  <div className="modal-stat">
-    <span>{label}</span>
-    <span className="val" style={{ color }}>{value}</span>
-  </div>
-);
-
-export const ResultModal = ({ result, loading, onClose }) => {
-  if (loading) {
-    return (
-      <Modal>
-        <p style={{ color: 'var(--muted)', fontSize: 13 }}>Analyzing pipeline...</p>
-      </Modal>
-    );
-  }
-
-  if (!result) return null;
-
-  if (result.error) {
-    return (
-      <Modal onClose={onClose}>
-        <h3>Error</h3>
-        <p style={{ color: '#f87171', fontSize: 13 }}>{result.error}</p>
-        <button className="modal-close" onClick={onClose}>Close</button>
-      </Modal>
-    );
-  }
-
-  return (
-    <Modal onClose={onClose}>
-      <h3>Pipeline Analysis</h3>
-      <StatRow label="Nodes" value={result.num_nodes} />
-      <StatRow label="Edges" value={result.num_edges} />
-      <StatRow
-        label="Valid DAG"
-        value={result.is_dag ? 'Yes' : 'No'}
-        color={result.is_dag ? 'var(--c-input)' : 'var(--c-output)'}
-      />
-      <button className="modal-close" onClick={onClose}>Close</button>
-    </Modal>
-  );
+  return { submit };
 };

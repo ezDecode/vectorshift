@@ -1,16 +1,14 @@
-import { useState } from 'react';
-
 // all node types with icons
 const mainNodes = [
-  { type: 'customInput', label: 'Input', icon: '' },
-  { type: 'customOutput', label: 'Output', icon: '' },
-  { type: 'llm', label: 'LLM', icon: '' },
-  { type: 'text', label: 'Text', icon: '' },
-  { type: 'prompt', label: 'Prompt', icon: '' },
-  { type: 'math', label: 'Math', icon: '' },
-  { type: 'filter', label: 'Filter', icon: '' },
-  { type: 'note', label: 'Note', icon: '' },
-  { type: 'merge', label: 'Merge', icon: '' },
+  { type: 'customInput', label: 'Input' },
+  { type: 'customOutput', label: 'Output' },
+  { type: 'llm', label: 'LLM' },
+  { type: 'text', label: 'Text' },
+  { type: 'prompt', label: 'Prompt' },
+  { type: 'math', label: 'Math' },
+  { type: 'filter', label: 'Filter' },
+  { type: 'note', label: 'Note' },
+  { type: 'merge', label: 'Merge' },
 ];
 
 const DockItem = ({ type, label, icon }) => {

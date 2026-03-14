@@ -1,10 +1,10 @@
-import { useState } from 'react';
 import { BaseNode } from './baseNode';
-import { useStore } from '../store';
+import { useNodeField } from '../store';
 
 export const NoteNode = ({ id, data }) => {
-  const [note, setNote] = useState(data?.note || 'Add a note...');
-  const updateNodeField = useStore((state) => state.updateNodeField);
+  const updateNodeField = useNodeField();
+
+  const note = data?.note || 'Add a note...';
 
   return (
     <BaseNode id={id} label="Note" color="var(--c-note)">
@@ -12,12 +12,9 @@ export const NoteNode = ({ id, data }) => {
         <label>Note Content</label>
         <textarea
           value={note}
-          onChange={e => {
-            setNote(e.target.value);
-            updateNodeField(id, 'note', e.target.value);
-          }}
+          onChange={e => updateNodeField(id, 'note', e.target.value)}
           rows={3}
-          style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12 }}
+          style={{ fontFamily: "'Inter', sans-serif", fontSize: 12 }}
         />
       </div>
     </BaseNode>
